@@ -29,10 +29,13 @@ func startRepl() {
 		if exists {
 			err := comm.callback()
 			if err != nil {
+				fmt.Println()
 				fmt.Println(err)
+				fmt.Println()
 			}
 		} else {
-			fmt.Println("What madness is this command?! Try again!")
+			fmt.Println()
+			fmt.Println("What madness is this command?! Try again!\n")
 		}
 	}
 }
@@ -48,6 +51,16 @@ func getCommand() map[string]cliCommand {
 			name:        "help",
 			description: "Displays a help message",
 			callback:    commandHelp,
+		},
+		"map": {
+			name:        "map",
+			description: "List the next 20 map locations",
+			callback:    commandMap,
+		},
+		"mapb": {
+			name:        "mapb",
+			description: "List the previous 20 map locations",
+			callback:    commandMapb,
 		},
 	}
 }
