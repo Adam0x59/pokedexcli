@@ -1,48 +1,55 @@
 package main
 
 import (
-	"encoding/json"
+	"errors"
 	"fmt"
-	"net/http"
 )
 
-var mapOffset int = 0
-
-func commandMap() error {
-
-	fmt.Println()
-	get_url := fmt.Sprintf("https://pokeapi.co/api/v2/location-area/?offset=%d&limit=20", mapOffset)
-	res, err := http.Get(get_url)
+func commandMapf(cfg *config) error {
+	// Get next list of locations, store in locationsResp,
+	// If there is no nextLocationsURL first 20 will be returned
+	// by default.
+	locationsResp, err := cfg.pokeapiClient.ListLocations(cfg.nextLocationsURL)
 	if err != nil {
-		fmt.Println(err)
+		return err
 	}
 
-	defer res.Body.Close()
+	// Store next and previous URLs returned by api in the config struct
+	cfg.nextLocationsURL = locationsResp.Next
+	cfg.prevLocationsURL = locationsResp.Previous
 
-	var result map[string]interface{}
-	if err := json.NewDecoder(res.Body).Decode(&result); err != nil {
-		fmt.Println(err)
-	}
-
-	results, ok := result["results"].([]interface{})
-	if !ok {
-		fmt.Println("results is not a slice")
-	}
-
-	for _, i := range results {
-		entry, ok := i.(map[string]interface{})
-		if !ok {
-			fmt.Println("i is not a map")
-		}
-
-		name, ok := entry["name"].(string)
-		if !ok {
-			fmt.Printf("\n%v is not a string", name)
-		}
-		fmt.Println(name)
+	//Print locations to the terminal
+	fmt.Println()
+	for _, loc := range locationsResp.Results {
+		fmt.Println(loc.Name)
 	}
 	fmt.Println()
-	mapOffset += 20
 
-	return err
+	return nil
+}
+
+func commandMapb(cfg *config) error {
+	// Check if there is a previous page stored in the config
+	if cfg.prevLocationsURL == nil {
+		return errors.New("you're on the first page")
+	}
+
+	// Get the previous list of locations
+	locationsResp, err := cfg.pokeapiClient.ListLocations(cfg.prevLocationsURL)
+	if err != nil {
+		return err
+	}
+
+	// Store next and previous URLs returned by api in the config struct
+	cfg.nextLocationsURL = locationsResp.Next
+	cfg.prevLocationsURL = locationsResp.Previous
+
+	//Print locations to the terminal
+	fmt.Println()
+	for _, loc := range locationsResp.Results {
+		fmt.Println(loc.Name)
+	}
+	fmt.Println()
+
+	return nil
 }

@@ -5,15 +5,26 @@ import (
 	"fmt"
 	"os"
 	"strings"
+
+	"github.com/adam0x59/pokedexcli/internal/pokeapi"
 )
 
+// Struct to store cli-commands
 type cliCommand struct {
 	name        string
 	description string
-	callback    func() error
+	callback    func(*config) error
 }
 
-func startRepl() {
+// Struct to store callback config (Stuff I want to pass into cli-commands)
+// Allows data to persist outside repl loops...
+type config struct {
+	pokeapiClient    pokeapi.Client
+	nextLocationsURL *string
+	prevLocationsURL *string
+}
+
+func startRepl(cfg *config) {
 	r := bufio.NewScanner(os.Stdin)
 
 	for {
@@ -27,7 +38,7 @@ func startRepl() {
 		}
 		comm, exists := getCommand()[command[0]]
 		if exists {
-			err := comm.callback()
+			err := comm.callback(cfg)
 			if err != nil {
 				fmt.Println()
 				fmt.Println(err)
@@ -35,7 +46,8 @@ func startRepl() {
 			}
 		} else {
 			fmt.Println()
-			fmt.Println("What madness is this command?! Try again!\n")
+			fmt.Println("What madness is this command?! Try again!")
+			fmt.Println()
 		}
 	}
 }
@@ -55,7 +67,7 @@ func getCommand() map[string]cliCommand {
 		"map": {
 			name:        "map",
 			description: "List the next 20 map locations",
-			callback:    commandMap,
+			callback:    commandMapf,
 		},
 		"mapb": {
 			name:        "mapb",
