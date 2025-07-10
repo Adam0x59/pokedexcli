@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/adam0x59/pokedexcli/internal/pokeapi"
+	"github.com/adam0x59/pokedexcli/internal/pokecache"
 )
 
 // Struct to store cli-commands
@@ -22,6 +23,7 @@ type config struct {
 	pokeapiClient    pokeapi.Client
 	nextLocationsURL *string
 	prevLocationsURL *string
+	pokecache        *pokecache.Cache
 }
 
 func startRepl(cfg *config) {

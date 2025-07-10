@@ -9,7 +9,7 @@ func commandMapf(cfg *config) error {
 	// Get next list of locations, store in locationsResp,
 	// If there is no nextLocationsURL first 20 will be returned
 	// by default.
-	locationsResp, err := cfg.pokeapiClient.ListLocations(cfg.nextLocationsURL)
+	locationsResp, err := cfg.pokeapiClient.ListLocations(cfg.pokecache, cfg.nextLocationsURL)
 	if err != nil {
 		return err
 	}
@@ -35,7 +35,7 @@ func commandMapb(cfg *config) error {
 	}
 
 	// Get the previous list of locations
-	locationsResp, err := cfg.pokeapiClient.ListLocations(cfg.prevLocationsURL)
+	locationsResp, err := cfg.pokeapiClient.ListLocations(cfg.pokecache, cfg.prevLocationsURL)
 	if err != nil {
 		return err
 	}
