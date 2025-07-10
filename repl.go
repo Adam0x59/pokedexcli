@@ -14,7 +14,7 @@ import (
 type cliCommand struct {
 	name        string
 	description string
-	callback    func(*config) error
+	callback    func(*config, string) error
 }
 
 // Struct to store callback config (Stuff I want to pass into cli-commands)
@@ -38,9 +38,13 @@ func startRepl(cfg *config) {
 		if len(command) <= 0 {
 			continue
 		}
+		var arg string
+		if len(command) > 1 {
+			arg = command[1]
+		}
 		comm, exists := getCommand()[command[0]]
 		if exists {
-			err := comm.callback(cfg)
+			err := comm.callback(cfg, arg)
 			if err != nil {
 				fmt.Println()
 				fmt.Println(err)
@@ -75,6 +79,11 @@ func getCommand() map[string]cliCommand {
 			name:        "mapb",
 			description: "List the previous 20 map locations",
 			callback:    commandMapb,
+		},
+		"explore": {
+			name:        "explore",
+			description: "Explore an area. Useage: explore <area-name>",
+			callback:    commandExplore,
 		},
 	}
 }

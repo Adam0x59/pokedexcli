@@ -5,7 +5,7 @@ import (
 	"fmt"
 )
 
-func commandMapf(cfg *config) error {
+func commandMapf(cfg *config, arg string) error {
 	// Get next list of locations, store in locationsResp,
 	// If there is no nextLocationsURL first 20 will be returned
 	// by default.
@@ -28,7 +28,7 @@ func commandMapf(cfg *config) error {
 	return nil
 }
 
-func commandMapb(cfg *config) error {
+func commandMapb(cfg *config, arg string) error {
 	// Check if there is a previous page stored in the config
 	if cfg.prevLocationsURL == nil {
 		return errors.New("you're on the first page")

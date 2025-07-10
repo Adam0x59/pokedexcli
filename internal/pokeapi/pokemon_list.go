@@ -2,21 +2,17 @@ package pokeapi
 
 import (
 	"encoding/json"
+	"errors"
 	"io"
 	"net/http"
 
 	"github.com/adam0x59/pokedexcli/internal/pokecache"
 )
 
-// Function to return a list of locations returned from pokeapi when
-// calling locations-area without arguments.
-func (c *Client) ListLocations(cache *pokecache.Cache, pageURL *string) (RespShallowLocations, error) {
+func (c *Client) ListPokemon(cache *pokecache.Cache, arg string) (RespDeepLocation, error) {
 
 	// Generate url for the api call
-	url := baseURL + "/location-area"
-	if pageURL != nil {
-		url = *pageURL
-	}
+	url := baseURL + "/location-area" + "/" + arg
 
 	cachedDat, ok := cache.Get(url)
 	var dat []byte
@@ -26,14 +22,17 @@ func (c *Client) ListLocations(cache *pokecache.Cache, pageURL *string) (RespSha
 		// store the request in req
 		req, err := http.NewRequest("GET", url, nil)
 		if err != nil {
-			return RespShallowLocations{}, err
+			return RespDeepLocation{}, err
 		}
 
 		// Actually send the new GET request to the server
 		// Store the response in resp
 		resp, err := c.httpClient.Do(req)
 		if err != nil {
-			return RespShallowLocations{}, err
+			return RespDeepLocation{}, err
+		}
+		if resp.StatusCode > 299 {
+			return RespDeepLocation{}, errors.New("provided Location invalid, please try again")
 		}
 		// On function exit close the response before exit
 		defer resp.Body.Close()
@@ -41,7 +40,7 @@ func (c *Client) ListLocations(cache *pokecache.Cache, pageURL *string) (RespSha
 		// Read response body into memory - store in dat
 		datNew, err := io.ReadAll(resp.Body)
 		if err != nil {
-			return RespShallowLocations{}, err
+			return RespDeepLocation{}, err
 		}
 		cache.Add(url, datNew)
 		dat = datNew
@@ -52,12 +51,12 @@ func (c *Client) ListLocations(cache *pokecache.Cache, pageURL *string) (RespSha
 
 	// Create an empty struct to store response data
 	// Unmarshall the JSON data and store in empty struct
-	locationsResp := RespShallowLocations{}
-	err := json.Unmarshal(dat, &locationsResp)
+	pokemonResp := RespDeepLocation{}
+	err := json.Unmarshal(dat, &pokemonResp)
 	if err != nil {
-		return RespShallowLocations{}, err
+		return RespDeepLocation{}, err
 	}
 
 	// Return struct containing unmarshalled JSON data
-	return locationsResp, nil
+	return pokemonResp, nil
 }
