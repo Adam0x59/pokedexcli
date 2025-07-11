@@ -8,7 +8,7 @@ import (
 func commandExplore(cfg *config, arg string) error {
 
 	if arg == "" {
-		return errors.New("Please provide a location to explore!")
+		return errors.New("please provide a location to explore")
 	}
 
 	pokemonResp, err := cfg.pokeapiClient.ListPokemon(cfg.pokecache, arg)
