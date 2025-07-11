@@ -17,13 +17,13 @@ type cliCommand struct {
 	callback    func(*config, string) error
 }
 
-// Struct to store callback config (Stuff I want to pass into cli-commands)
-// Allows data to persist outside repl loops...
+// Struct to store callback config, allows config data to persist outside repl loops...
 type config struct {
 	pokeapiClient    pokeapi.Client
 	nextLocationsURL *string
 	prevLocationsURL *string
 	pokecache        *pokecache.Cache
+	pokedex          map[string]pokeapi.RespDeepPokemon
 }
 
 func startRepl(cfg *config) {
@@ -84,6 +84,11 @@ func getCommand() map[string]cliCommand {
 			name:        "explore",
 			description: "Explore an area. Useage: explore <area-name>",
 			callback:    commandExplore,
+		},
+		"catch": {
+			name:        "catch",
+			description: "Attempt to catch a pokemon. Usage: catch <pokemon-name>",
+			callback:    commandCatch,
 		},
 	}
 }
